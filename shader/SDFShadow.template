@@ -1,0 +1,141 @@
+shader_type spatial;
+//render_mode world_vertex_coords;
+render_mode unshaded;
+
+uniform vec3 light = vec3(10., 2., 10.);
+uniform float shadow_intensity : hint_range(0, 1.) = .2;
+
+uniform vec4 shadow_color : hint_color = vec4(vec3(.5), 1.);
+uniform vec4 unshaded_color : hint_color = vec4(vec3(.5), 1.);
+uniform float threshold : hint_range(-1., 1.) = .2;
+
+varying mat4 CAMERA;
+varying vec3 rO;
+varying vec3 v;
+
+const mat2 m45deg = mat2(vec2(0.7071067, -0.7071067), vec2(0.7071067));
+const float MAX_DIST = 30.;
+const float SURF_DIST = 1e-2;
+const int MAX_STEP = 60;
+
+float sdBox(vec3 p, vec3 box) {
+	vec3 q = abs(p) - box;
+	return length(max(q, 0.)) + min(max(q.x, max(q.y, q.z)), 0.);
+}
+
+float sdSphere(vec3 p, float r) {
+	return length(p) - r;
+}
+
+float map(vec3 p) {
+	float d = p.y;
+	d = min(d, sdBox(p - vec3(.0, 5.5, .0), vec3(5., .5, 5.)));
+	d = max(-sdBox(p - vec3(0., 5.5, 0.), vec3(2., 1., 2.)), d);
+	d = min(d, sdBox(p - vec3(.0, 1.5, 0.), vec3(.25, 1.5, 1.)));
+	d = min(d, sdBox(p - vec3(.0, 2.5, -2.5), vec3(2.5, 2.5, .25)));
+	vec3 q = p;
+	q -= vec3(2., 2.5, 3.);
+	// sin(45°) = cos(45°) = 0.7071067
+	q.xz *= mat2(vec2(0.7071067, -0.7071067), vec2(0.7071067));
+	d = min(d, sdBox(q, vec3(1., 2.5, .25)));
+	return d;
+}
+
+vec3 getNormal(vec3 p) {
+	vec2 e = vec2(1e-3, 0.);
+	return normalize(map(p) - vec3(
+		map(p - e.xyy),
+		map(p - e.yxy),
+		map(p - e.yyx)
+	));
+}
+
+float getDist(vec3 ro, vec3 rd) {
+	float dist = 0.;
+	float r;
+	
+	for (int i = 0; i < MAX_STEP; ++i) {
+		vec3 p = ro + rd * dist;
+		r = map(p);
+		dist += r;
+		if (r <= SURF_DIST || dist >= MAX_DIST) {
+			break;
+		}
+	}
+	return dist;
+}
+
+float diffuse(vec3 normal, vec3 light_dir) {
+	return dot(normal, light_dir) * .25 + .75;
+}
+
+float getShadowDir(vec3 p, vec3 normal, vec3 l) {
+	return getDist(p + normal * SURF_DIST * 1.1, l);
+}
+
+float getShadow(vec3 p, vec3 l) {
+	vec3 d = l - p;
+	vec3 nl = normalize(d);
+	vec3 normal = getNormal(p);
+	return getDist(p + nl * SURF_DIST * 2.5, nl);
+}
+
+vec4 getLinearDepth(sampler2D text, vec2 screen_uv, mat4 inv_proj) {
+	float depth = texture(text, screen_uv).x;
+	vec3 ndc = vec3(screen_uv, depth) * 2.0 - 1.0;
+	vec4 view = inv_proj * vec4(ndc, 1.0);
+	view.xyz /= view.w;
+	vec4 world = CAMERA * inv_proj * vec4(ndc, 1.0);
+	vec3 world_position = world.xyz / world.w;
+	return vec4(world_position, -view.z);
+}
+
+vec3 toHSL(vec3 rgb) {
+	float xmax = max(rgb.r, max(rgb.g, rgb.b));
+	float xmin = min(rgb.r, min(rgb.g, rgb.b));
+	float range = xmax - xmin;
+	float mid_range = (xmax + xmin) / 2.;
+	return vec3(0.);
+}
+
+void vertex() {
+	CAMERA = CAMERA_MATRIX;
+	rO = CAMERA_MATRIX[3].xyz;
+	v = VERTEX;
+	POSITION = vec4(VERTEX, 1.);
+}
+
+void fragment() {
+	vec4 w = getLinearDepth(DEPTH_TEXTURE, SCREEN_UV, INV_PROJECTION_MATRIX);
+	
+	vec3 p = w.xyz;
+	vec3 c;
+	
+	if (w.w > 20.) {
+		discard;
+	} else {
+		vec3 l = light;
+		float t = TIME * .2;
+		l.xz *= vec2(sin(t), cos(t));
+		vec3 nl = normalize(l);
+		vec3 normal = getNormal(p);
+		float diff = diffuse(normal, nl);
+		float d = getShadowDir(p, normal, nl);
+		vec3 mat = texture(SCREEN_TEXTURE, SCREEN_UV).rgb;
+		
+//		mat = vec3(dot(mat * 2. - 1., unshaded_color.rgb * 2. - 1.));
+//		if (dot(mat * 2. - 1., unshaded_color.rgb * 2. - 1.) > threshold) {
+//			d = 1000.;
+//			diff = 1.;
+//			discard;
+//		}
+		c = mat * diff;
+//		c = vec3(diff);
+//		if (d < length(light - p)) {
+		if (d < MAX_DIST) {
+			c *= shadow_intensity * shadow_color.rgb;
+		}
+	}
+
+	ALBEDO = c;
+}
