@@ -3,14 +3,12 @@ render_mode unshaded;
 
 uniform vec3 light = vec3(10., 20., 10.);
 
-uniform vec4 shadow_color : hint_color = vec4(vec3(.5), 1.);
-uniform float shadow_feather : hint_range(2., 128.) = 16.;
-uniform float shadow_intensity : hint_range(0, 1.) = .2;
-uniform vec4 sky_color : hint_color = vec4(.3, .3, .8, 1);
 uniform bool enable = true;
+uniform float shadow_intensity : hint_range(0, 1.) = .2;
+uniform vec4 shadow_color : hint_color = vec4(vec3(.5), 1.);
 uniform bool feather_enable = true;
+uniform float shadow_feather : hint_range(2., 128.) = 16.;
 uniform bool ao_enable = true;
-
 uniform float AO_DIST : hint_range(0.01, .3) = .1;
 
 varying vec3 rO;
@@ -70,10 +68,6 @@ float getDiffuse(vec3 p, vec3 normal, vec3 light_dir) {
 	return d;
 }
 
-vec3 getBackground(vec3 p) {
-	return mix(vec3(.6), sky_color.rgb, smoothstep(-.1, .3, p.y));
-}
-
 float getAO(vec3 p, vec3 normal) {
 	return map(p + normal * AO_DIST) / AO_DIST;
 }
@@ -120,10 +114,8 @@ void fragment() {
 	
 	if (depth_infos.w > 40.) {
 		vec3 rd = normalize(p - rO);
-//		vec3 bg = getBackground(rd);
 		vec3 sun = vec3(.8, .8, .5);
 		float sd = smoothstep(.99, .999, dot(rd, light_normal));
-//		c = mat;
 		c = mix(mat, sun, sd);
 	} else {
 		vec3 normal = getNormal(p);
