@@ -1,16 +1,14 @@
 shader_type spatial;
 render_mode unshaded;
 
-uniform vec3 light = vec3(10., 2., 10.);
+uniform vec3 light = vec3(10., 20., 10.);
 
 uniform vec4 shadow_color : hint_color = vec4(vec3(.5), 1.);
 uniform float shadow_feather : hint_range(2., 128.) = 16.;
 uniform float shadow_intensity : hint_range(0, 1.) = .2;
 uniform vec4 sky_color : hint_color = vec4(.3, .3, .8, 1);
 uniform bool enable = true;
-uniform bool shadow_enable = true;
 uniform bool feather_enable = true;
-uniform bool normal_enable = true;
 uniform bool ao_enable = true;
 
 uniform float AO_DIST : hint_range(0.01, .3) = .1;
@@ -118,22 +116,18 @@ void fragment() {
 	vec3 p = depth_infos.xyz;
 	vec3 c;
 	vec3 light_normal = normalize(light);
+	vec3 mat = texture(SCREEN_TEXTURE, SCREEN_UV).rgb;
 	
 	if (depth_infos.w > 40.) {
 		vec3 rd = normalize(p - rO);
-		vec3 bg = getBackground(rd);
+//		vec3 bg = getBackground(rd);
 		vec3 sun = vec3(.8, .8, .5);
 		float sd = smoothstep(.99, .999, dot(rd, light_normal));
-		c = mix(bg, sun, sd);
-//		c = texture(SCREEN_TEXTURE, SCREEN_UV).rgb;
+//		c = mat;
+		c = mix(mat, sun, sd);
 	} else {
 		vec3 normal = getNormal(p);
-		float diff = getDiffuse(p, normal, light_normal);
 		vec3 shadow = getShadowDir(p, normal, light_normal);
-		vec3 mat = vec3(1.);
-		if (normal_enable) {
-			mat *= diff;
-		}
 		float sh = step(MAX_DIST, shadow.x); // in shadow or not
 		if (feather_enable) {
 			sh -= sh * (1. - shadow.y); // shadow's feather
@@ -142,10 +136,7 @@ void fragment() {
 			sh *= (shadow.z * .25) + .75; // ao
 		}
 		sh = (1. - sh) * shadow_intensity; // shadow mask
-		if (!shadow_enable) {
-			sh = 0.;
-		}
-		c = mix(mat, shadow_color.rgb, sh);
+		c = mix(mat, mat * shadow_color.rgb, sh);
 	}
 	ALBEDO = c;
 }
