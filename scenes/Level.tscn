@@ -38,19 +38,19 @@ width = 3.0
 height = 1.0
 depth = 3.0
 
-[node name="HoleRoof2" type="CSGBox" parent="GEO/Room"]
+[node name="HoleHalf" type="CSGBox" parent="GEO/Room"]
 operation = 2
 width = 9.0
 height = 1.0
 depth = 9.0
 
-[node name="HoleRoof3" type="CSGBox" parent="GEO/Room"]
+[node name="HoleWindows" type="CSGBox" parent="GEO/Room"]
 operation = 2
 width = 6.0
 height = 3.0
 depth = 9.0
 
-[node name="Door" type="CSGBox" parent="GEO/Room"]
+[node name="HoleDoor" type="CSGBox" parent="GEO/Room"]
 transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 4, -1.5, 0 )
 operation = 2
 width = 1.0

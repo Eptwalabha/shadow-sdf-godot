@@ -20,7 +20,7 @@ varying vec3 v;
 
 const float MAX_DIST = 30.;
 const float SURF_DIST = 1e-2;
-const int MAX_STEP = 60;
+const int MAX_STEP = 70;
 
 float sdBox(vec3 p, vec3 box) {
 	vec3 q = abs(p) - box;
@@ -125,12 +125,12 @@ void fragment() {
 		vec3 sun = vec3(.8, .8, .5);
 		float sd = smoothstep(.99, .999, dot(rd, light_normal));
 		c = mix(bg, sun, sd);
+//		c = texture(SCREEN_TEXTURE, SCREEN_UV).rgb;
 	} else {
 		vec3 normal = getNormal(p);
 		float diff = getDiffuse(p, normal, light_normal);
 		vec3 shadow = getShadowDir(p, normal, light_normal);
-		vec3 mat = texture(SCREEN_TEXTURE, SCREEN_UV).rgb;
-		mat = vec3(1.);
+		vec3 mat = vec3(1.);
 		if (normal_enable) {
 			mat *= diff;
 		}
