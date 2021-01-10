@@ -13,6 +13,7 @@ var shader : ShaderMaterial
 var velocity = Vector3()
 var gravity_vector : Vector3 = Vector3.ZERO
 var has_control : bool = true
+var head_locked : bool = false
 var camera_angle : float = 0.0
 var mouse_sensitivity : float = -.3
 
@@ -37,7 +38,7 @@ func zeroed_velocity() -> void:
 	gravity_vector = Vector3.ZERO
 
 func _input(event: InputEvent) -> void:
-	if event is InputEventMouseMotion:
+	if not head_locked and event is InputEventMouseMotion:
 		head.rotate_y(deg2rad(event.relative.x * mouse_sensitivity))
 
 		var change = event.relative.y * mouse_sensitivity
