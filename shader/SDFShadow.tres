@@ -6,10 +6,10 @@
 shader = ExtResource( 1 )
 shader_param/light = Vector3( 10, 2, 10 )
 shader_param/shadow_color = Color( 0, 0, 0, 1 )
-shader_param/shadow_feather = 32.0
+shader_param/shadow_feather = 128.0
 shader_param/shadow_intensity = 0.6
 shader_param/sky_color = Color( 0.654902, 0.843137, 0.945098, 1 )
-shader_param/enable = true
-shader_param/feather_enable = true
-shader_param/ao_enable = true
+shader_param/enable = false
+shader_param/feather_enable = false
+shader_param/ao_enable = false
 shader_param/AO_DIST = 0.3
