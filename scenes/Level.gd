@@ -13,8 +13,6 @@ func _ready() -> void:
 func _process(delta: float) -> void:
 	time += delta
 	if Input.is_action_just_pressed("ui_cancel"):
-		if Input.get_mouse_mode() == Input.MOUSE_MODE_VISIBLE:
-			get_tree().quit()
 		player.head_locked = true
 		Input.set_mouse_mode(Input.MOUSE_MODE_VISIBLE)
 	if Input.is_mouse_button_pressed(BUTTON_LEFT):
