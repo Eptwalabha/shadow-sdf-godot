@@ -27,10 +27,12 @@ With a bit of trickery, we can also compute (almost for free):
 
 The nice thing about the `DEPTH_BUFFER` is it can be used to by-pass step 1 entirely.  
 Because we can construct the world position for each pixel of our screen (see [this tutorial](https://docs.godotengine.org/en/stable/tutorials/shading/advanced_postprocessing.html#depth-texture) for more informations on how to proceed).  
-This tricks saves us a lot of GPU computation.  
+This trick saves us a lot of GPU computation.  
 
-# Screenshoots
+# Screenshots
 
+![screenshot 1](https://github.com/Eptwalabha/shadow-sdf-godot/blob/main/image/screen-02.png?raw=true )
+![screenshot 2](https://github.com/Eptwalabha/shadow-sdf-godot/blob/main/image/screen-03.png?raw=true )
 
 # How do I use this technique for my game ?
 
