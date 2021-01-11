@@ -29,9 +29,11 @@ func _process(delta: float) -> void:
 		toggle("ao")
 
 	fps.text = "fps: %s" % Engine.get_frames_per_second()
-	$Pivot.rotate(Vector3.UP, delta * .1)
-	$Pivot/Pivot.rotate(Vector3.UP, -delta * .3)
-	player.shader.set_shader_param("light", $Pivot/Light.global_transform.origin)
+	
+	if not player.head_locked:
+		$Pivot.rotate(Vector3.UP, delta * .1)
+		$Pivot/Pivot.rotate(Vector3.UP, -delta * .3)
+		player.shader.set_shader_param("light", $Pivot/Light.global_transform.origin)
 
 func toggle(what: String) -> void:
 	player.toggle(what)
