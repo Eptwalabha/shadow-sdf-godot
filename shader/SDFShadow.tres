@@ -6,8 +6,9 @@
 shader = ExtResource( 1 )
 shader_param/light = Vector3( 10, 2, 10 )
 shader_param/enable = false
+shader_param/shadow_map = 0.0
 shader_param/shadow_intensity = 0.6
-shader_param/shadow_color = Color( 0, 0, 0, 1 )
+shader_param/shadow_color = Color( 0.129412, 0.129412, 0.129412, 1 )
 shader_param/feather_enable = false
 shader_param/shadow_feather = 128.0
 shader_param/ao_enable = false

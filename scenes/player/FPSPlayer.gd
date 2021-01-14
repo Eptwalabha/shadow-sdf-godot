@@ -97,8 +97,16 @@ func get_trigger_hover() -> Object:
 	return null
 
 func toggle(what: String) -> void:
-	var param = '%s_enable' % what
-	if what == 'shader':
-		param = 'enable'
+	var param = ''
+	match what:
+		'shader': param = 'enable'
+		'shadow_map': param = 'shadow_map'
+		_: param = '%s_enable' % what
+
 	var param_value = shader.get_shader_param(param)
+	var new_value = param_value
+	match what:
+		'shadow_map': new_value = 1.0 if param_value else 0.0
+		_: new_value = not param_value
+
 	shader.set_shader_param(param, not param_value)

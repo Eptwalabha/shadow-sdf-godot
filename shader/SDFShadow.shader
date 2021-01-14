@@ -4,6 +4,7 @@ render_mode unshaded;
 uniform vec3 light = vec3(10., 20., 10.);
 
 uniform bool enable = true;
+uniform float shadow_map : hint_range(0, 1) = 0.;
 uniform float shadow_intensity : hint_range(0, 1.) = .2;
 uniform vec4 shadow_color : hint_color = vec4(vec3(.5), 1.);
 uniform bool feather_enable = true;
@@ -111,6 +112,7 @@ void fragment() {
 	vec3 c;
 	vec3 light_normal = normalize(light);
 	vec3 mat = texture(SCREEN_TEXTURE, SCREEN_UV).rgb;
+	mat = mix(mat, vec3(1.), shadow_map);
 	
 	if (depth_infos.w > 40.) {
 		vec3 rd = normalize(p - rO);
@@ -124,10 +126,11 @@ void fragment() {
 		if (feather_enable) {
 			sh -= sh * (1. - shadow.y); // shadow's feather
 		}
-		if (ao_enable) {
-			sh *= (shadow.z * .25) + .75; // ao
-		}
 		sh = (1. - sh) * shadow_intensity; // shadow mask
+		if (ao_enable) {
+			sh -= (shadow.z - .5) * .25; // ao
+			sh = clamp(0., 1., sh);
+		}
 		c = mix(mat, mat * shadow_color.rgb, sh);
 	}
 	ALBEDO = c;

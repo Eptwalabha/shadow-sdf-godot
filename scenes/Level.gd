@@ -25,6 +25,8 @@ func _process(delta: float) -> void:
 		toggle("feather")
 	if Input.is_action_just_pressed("toggle_ao"):
 		toggle("ao")
+	if Input.is_action_just_pressed("toggle_map_view"):
+		toggle("shadow_map")
 
 	fps.text = "fps: %s" % Engine.get_frames_per_second()
 	
@@ -41,8 +43,10 @@ func update_ui() -> void:
 	if not player.shader is ShaderMaterial:
 		return
 	var enable = player.shader.get_shader_param("enable")
-	var ao = enable and player.shader.get_shader_param("ao_enable")
-	var feather = enable and player.shader.get_shader_param("feather_enable")
+	var ao = player.shader.get_shader_param("ao_enable")
+	var feather = player.shader.get_shader_param("feather_enable")
+	var shadow_map : float = player.shader.get_shader_param("shadow_map")
 	$Infos/HBoxContainer/VBoxContainer/Shader.text = "shader: %s" % enable
 	$Infos/HBoxContainer/VBoxContainer/Feather.text = "shadow feather: %s" % feather
 	$Infos/HBoxContainer/VBoxContainer/AO.text = "ao: %s" % ao
+	$Infos/HBoxContainer/VBoxContainer/Map.text = "shadow map: %s" % (shadow_map > 0.5)
